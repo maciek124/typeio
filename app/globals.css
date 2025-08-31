@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #323437;
-  --foreground: #d1d0c5;
+  --background: #0a0a0a;
+  --foreground: #e5e5e5;
   --bright-foreground: #ffffff;
-  --muted-foreground: #646669;
-  --border: #2c2e31;
-  --accent: #e2b714;
-  --bg-grad-1: rgba(226, 183, 20, 0.13);
-  --bg-grad-2: rgba(255, 255, 255, 0.06);
+  --muted-foreground: #a3a3a3;
+  --border: #1f1f1f;
+  --accent: #ffffff;
+  --bg-grad-1: rgba(255, 255, 255, 0.08);
+  --bg-grad-2: rgba(255, 255, 255, 0.03);
 }
 
 :root[data-theme="charcoal"] {
-  --background: #323437;
-  --foreground: #d1d0c5;
+  --background: #0a0a0a;
+  --foreground: #e5e5e5;
   --bright-foreground: #ffffff;
-  --muted-foreground: #646669;
-  --border: #2c2e31;
-  --accent: #e2b714;
-  --bg-grad-1: rgba(226, 183, 20, 0.13);
-  --bg-grad-2: rgba(255, 255, 255, 0.06);
+  --muted-foreground: #a3a3a3;
+  --border: #1f1f1f;
+  --accent: #ffffff;
+  --bg-grad-1: rgba(255, 255, 255, 0.08);
+  --bg-grad-2: rgba(255, 255, 255, 0.03);
 }
 :root[data-theme="ocean"] {
   --background: #0f172a;
@@ -76,14 +76,14 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --background: #f7f7f7;
-    --foreground: #323437;
-    --bright-foreground: #111111;
-    --muted-foreground: #646669;
-    --border: #e4e4e7;
-    --accent: #e2b714;
-    --bg-grad-1: rgba(226, 183, 20, 0.13);
-    --bg-grad-2: rgba(0, 0, 0, 0.04);
+  --background: #fafafa;
+  --foreground: #111111;
+  --bright-foreground: #000000;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
+  --accent: #111111;
+  --bg-grad-1: rgba(0, 0, 0, 0.06);
+  --bg-grad-2: rgba(0, 0, 0, 0.03);
   }
 }
 
