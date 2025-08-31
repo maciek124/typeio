@@ -17,18 +17,25 @@ export default function Keymap({ mode = "next" }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const onHighlight = (e: CustomEvent<{ key: string }>) => {
-      setActive(e.detail.key || " ");
+    type HighlightDetail = { key: string };
+    type FlashDetail = { key: string; ok: boolean };
+
+    const onHighlight = (ev: Event) => {
+      const e = ev as CustomEvent<HighlightDetail>;
+      setActive((e.detail?.key ?? " "));
     };
-    const onFlash = (e: CustomEvent<{ key: string; ok: boolean }>) => {
-      setFlash({ key: e.detail.key || " ", ok: e.detail.ok });
+    const onFlash = (ev: Event) => {
+      const e = ev as CustomEvent<FlashDetail>;
+      const key = e.detail?.key ?? " ";
+      const ok = Boolean(e.detail?.ok);
+      setFlash({ key, ok });
       window.setTimeout(() => setFlash(null), 250);
     };
-    window.addEventListener("keymap:highlight" as any, onHighlight as any);
-    window.addEventListener("keymap:flash" as any, onFlash as any);
+    window.addEventListener("keymap:highlight", onHighlight);
+    window.addEventListener("keymap:flash", onFlash);
     return () => {
-      window.removeEventListener("keymap:highlight" as any, onHighlight as any);
-      window.removeEventListener("keymap:flash" as any, onFlash as any);
+      window.removeEventListener("keymap:highlight", onHighlight);
+      window.removeEventListener("keymap:flash", onFlash);
     };
   }, []);
 
