@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback, type ReactNode } from "react";
 import { generateWords, type Language } from "../lib/words";
 import LiveStats from "./LiveStats";
 import TimerProgress from "./TimerProgress";
@@ -22,14 +22,13 @@ type Stats = {
 
 function computeStats(words: string[], typed: string[], seconds: number, finished = false): Stats {
   let spaces = 0;
-  let correctWordChars = 0;
   let allCorrectChars = 0;
   let incorrectChars = 0;
   let extraChars = 0;
   let missedChars = 0;
   let correctSpaces = 0;
 
-  let inputWords = [...typed];
+  const inputWords = [...typed];
   while (inputWords.length > 0 && inputWords[inputWords.length - 1] === "") {
     inputWords.pop();
   }
@@ -67,10 +66,6 @@ function computeStats(words: string[], typed: string[], seconds: number, finishe
           wordCorrect = false;
         }
       }
-    }
-
-    if (wordCorrect && inputWord === targetWord && inputWord.length > 0) {
-      correctWordChars += inputWord.length;
     }
 
     if (i < inputWords.length && wordCorrect && inputWord === targetWord) {
@@ -133,7 +128,7 @@ function computeStats(words: string[], typed: string[], seconds: number, finishe
     setWords(generateWords(300, lang));
   }, [lang, started, finished]);
 
-  const restart = (keepDuration = true) => {
+  const restart = useCallback((keepDuration = true) => {
   const d = keepDuration ? duration : (15 as Duration);
     setDuration(d);
     setTimeLeft(d);
@@ -146,7 +141,7 @@ function computeStats(words: string[], typed: string[], seconds: number, finishe
     setWpmHistory([]);
   startedAtRef.current = null;
   setRunKey((k) => k + 1);
-  };
+  }, [duration, lang]);
 
   useEffect(() => {
     if (!started || finished) return;
@@ -194,16 +189,16 @@ function computeStats(words: string[], typed: string[], seconds: number, finishe
     if (finished) return;
     const current = typed[wordIndex] ?? "";
     const w = words[wordIndex] ?? "";
-    const nextChar = w[current.length] ?? " ";
-    window.dispatchEvent(new CustomEvent("keymap:highlight", { detail: { key: nextChar } } as any));
+  const nextChar = w[current.length] ?? " ";
+  window.dispatchEvent(new CustomEvent<{ key: string }>("keymap:highlight", { detail: { key: nextChar } }));
   }, [typed, wordIndex, words, finished]);
 
-  const startOnFirstTypingKey = () => {
+  const startOnFirstTypingKey = useCallback(() => {
     if (!started && !finished) {
       setStarted(true);
       if (startedAtRef.current == null) startedAtRef.current = performance.now();
     }
-  };
+  }, [started, finished]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -229,7 +224,7 @@ function computeStats(words: string[], typed: string[], seconds: number, finishe
           next[wordIndex] = (next[wordIndex] ?? "").slice(0, -1);
           return next;
         });
-        window.dispatchEvent(new CustomEvent("keymap:flash", { detail: { key: "Backspace", ok: true } } as any));
+  window.dispatchEvent(new CustomEvent<{ key: string; ok: boolean }>("keymap:flash", { detail: { key: "Backspace", ok: true } }));
         return;
       }
 
@@ -242,7 +237,7 @@ function computeStats(words: string[], typed: string[], seconds: number, finishe
           return next;
         });
         setWordIndex((i) => i + 1);
-        window.dispatchEvent(new CustomEvent("keymap:flash", { detail: { key: " ", ok: true } } as any));
+  window.dispatchEvent(new CustomEvent<{ key: string; ok: boolean }>("keymap:flash", { detail: { key: " ", ok: true } }));
         return;
       }
 
@@ -256,13 +251,13 @@ function computeStats(words: string[], typed: string[], seconds: number, finishe
         const currentTyped = typed[wordIndex] ?? "";
         const expected = (words[wordIndex] ?? "")[currentTyped.length];
         const ok = expected ? key === expected : false;
-        window.dispatchEvent(new CustomEvent("keymap:highlight", { detail: { key } } as any));
-        window.dispatchEvent(new CustomEvent("keymap:flash", { detail: { key, ok } } as any));
+  window.dispatchEvent(new CustomEvent<{ key: string }>("keymap:highlight", { detail: { key } }));
+  window.dispatchEvent(new CustomEvent<{ key: string; ok: boolean }>("keymap:flash", { detail: { key, ok } }));
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, started, wordIndex, revealed, typed, words]);
+  }, [finished, started, wordIndex, revealed, typed, words, restart, startOnFirstTypingKey]);
 
   const handleDurationChange = (d: Duration) => {
     if (started) return;
